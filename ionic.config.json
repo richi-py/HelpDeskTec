@@ -1,0 +1,7 @@
+{
+  "name": "HelpDeskTec",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
