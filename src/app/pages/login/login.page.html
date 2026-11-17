@@ -1,0 +1,29 @@
+<ion-content [scrollY]="false">
+    <ion-img src="assets/icon/image.png" id="mimg" style="padding-top: 60px;"></ion-img>
+
+    <p class="subLogin"><strong>Inicia sesion para continuar</strong></p>
+    <div class="form">
+        <ion-list>
+            <ion-item style="padding-bottom: 20px;">
+                <ion-input type="email" [(ngModel)]="correo" name="correo" labelPlacement="floating" placeholder="JuanHT@gmail.com" fill="outline">
+                    <ion-icon name="person-outline" slot="start"></ion-icon>
+                    <div slot="label">Email</div>
+                </ion-input>
+            </ion-item>
+            <ion-item>
+                <ion-input type="password" [(ngModel)]="password" name="password" password-toggle="true" fill="outline" label-placement="floating">
+                    <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+                    <div slot="label">Contraseña</div>
+                    <ion-input-password-toggle slot="end" color="success"></ion-input-password-toggle>
+                </ion-input>
+            </ion-item>
+        </ion-list>
+        @if (errorMensaje) {
+          <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 12px;">
+            {{ errorMensaje }}
+          </p>
+        }
+        <ion-button style="padding-top: 20px; color: #FFFFFF;" (click)="pageHelpTec()" expand="block" color="success">Ingresar</ion-button>
+
+    </div>
+</ion-content>

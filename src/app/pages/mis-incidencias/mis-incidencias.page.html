@@ -1,0 +1,51 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/tab1"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Mis Incidencias</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="ion-padding">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-title size="large">Mis Incidencias</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <div class="header-summary">
+    <h2>Incidencias</h2>
+    <p>Filtra y revisa tus incidencias de soporte</p>
+  </div>
+
+  <ion-segment [(ngModel)]="filtro" scrollable="true" class="filter-segment">
+    <ion-segment-button value="asignadas">
+      <ion-label>Asignadas</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="proceso">
+      <ion-label>En proceso</ion-label>
+    </ion-segment-button>
+    <ion-segment-button value="resueltas">
+      <ion-label>Resueltas</ion-label>
+    </ion-segment-button>
+  </ion-segment>
+
+  <ion-list class="incidencias-list">
+    @for (incidencia of incidenciasFiltradas; track incidencia.id) {
+      <ion-item>
+        <ion-label>
+          <h3>{{ incidencia.id }} - {{ incidencia.titulo }}</h3>
+          <p>{{ incidencia.created_at | tiempoRelativo }}</p>
+        </ion-label>
+        <ion-badge slot="end" [color]="incidencia.badgeColor">{{ incidencia.badgeTexto }}</ion-badge>
+      </ion-item>
+    } @empty {
+      <ion-item lines="none">
+        <ion-label class="ion-text-center">
+          <p>No hay incidencias en este estado</p>
+        </ion-label>
+      </ion-item>
+    }
+  </ion-list>
+</ion-content>

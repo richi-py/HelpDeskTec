@@ -1,15 +1,63 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
-    <ion-title> Tab 1 </ion-title>
+    <ion-title class="ion-text-center">
+      <img src="assets/icon/image.png" alt="HelpDesk" class="header-logo" />
+    </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
+<ion-content [fullscreen]="true" class="ion-padding">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Tab 1</ion-title>
+      <ion-title size="large">Hola, {{ nombreUsuario }}</ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <app-explore-container name="Tab 1 page"></app-explore-container>
+  <div class="user-info">
+    <h2>Hola, {{ nombreUsuario }}</h2>
+    <p>Técnico de Reportes</p>
+  </div>
+
+  <div class="card">
+    <ion-card [button]="true" (click)="goToMisIncidencias()">
+      <ion-card-header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-clipboard-check preview-icon"><rect width="8" height="4" x="8" y="2" rx="1" ry="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg>
+        <ion-card-title class="centComps">{{ resumen.asignadas }}</ion-card-title>
+        <ion-card-subtitle class="centComps">Asignadas</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-loader preview-icon"><path d="M12 2v4"/><path d="m16.2 7.8 2.9-2.9"/><path d="M18 12h4"/><path d="m16.2 16.2 2.9 2.9"/><path d="M12 18v4"/><path d="m4.9 19.1 2.9-2.9"/><path d="M2 12h4"/><path d="m4.9 4.9 2.9 2.9"/></svg>
+        <ion-card-title class="centComps">{{ resumen.en_proceso }}</ion-card-title>
+        <ion-card-subtitle class="centComps">En Proceso</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+
+    <ion-card>
+      <ion-card-header>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-check-check preview-icon"><path d="M18 6 7 17l-5-5"/><path d="m22 10-7.5 7.5L13 16"/></svg>
+        <ion-card-title class="centComps">{{ resumen.resueltas }}</ion-card-title>
+        <ion-card-subtitle class="centComps">Resueltas</ion-card-subtitle>
+      </ion-card-header>
+    </ion-card>
+  </div>
+
+  <div class="listInsid">
+    <strong><p>Incidencias recientes</p></strong>
+    <ion-button style="color: green;" (click)="ViewAll()" fill="clear">Ver Todas</ion-button>
+  </div>
+
+  <ion-list>
+    @for (item of incidenciasRecientes; track item.codigo) {
+      <ion-item>
+        <ion-label>
+          <h3>#{{ item.codigo }} - {{ item.titulo }}</h3>
+          <p>{{ item.created_at | tiempoRelativo }}</p>
+        </ion-label>
+        <ion-badge slot="end" [color]="item.badgeColor">{{ item.estadoTexto }}</ion-badge>
+      </ion-item>
+    }
+  </ion-list>
 </ion-content>

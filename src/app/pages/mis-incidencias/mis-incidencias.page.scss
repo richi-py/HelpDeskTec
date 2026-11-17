@@ -1,0 +1,45 @@
+.header-summary {
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0 0 4px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: var(--ion-color-medium);
+    font-size: 0.9rem;
+  }
+}
+
+ion-segment-button {
+  --color-checked: #ffff;
+  --padding-start: 4px;
+  --padding-end: 4px;
+  --background-checked: #226340;
+  --background: #EDEDED;
+  --color: black;
+  border-radius: 15px;
+  min-width: auto;
+  font-size: 13px;
+  gap: 8px;
+}
+
+ion-segment {
+  gap: 8px;
+  justify-content: space-evenly;
+}
+
+ion-segment-button ion-label {
+  text-transform: none;
+}
+
+.filter-segment {
+  margin-bottom: 16px;
+}
+
+.incidencias-list {
+  background: transparent;
+}

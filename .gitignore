@@ -74,3 +74,11 @@ Thumbs.db
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Python / Flask
+__pycache__/
+*.py[cod]
+.env
+venv/
+.venv/
+API/static/uploads/

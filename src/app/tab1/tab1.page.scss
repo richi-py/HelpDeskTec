@@ -1,0 +1,36 @@
+.centComps {
+    justify-content: center;
+    align-items: center;
+    display: flex;
+}
+
+ion-card-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.preview-icon {
+    display: block;
+    margin: 0 auto 6px auto;
+}
+
+.card{
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.listInsid{
+    padding-top: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header-logo {
+  height: 100px;
+  width: auto;
+  vertical-align: middle;
+}
