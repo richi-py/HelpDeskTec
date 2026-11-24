@@ -1,5 +1,6 @@
 import os
 import uuid
+import base64
 import gridfs
 from io import BytesIO
 from datetime import datetime, timezone
@@ -496,26 +497,26 @@ def subir_imagen_incidencia(inc_id_str, user_id_str, archivo, tipo, host_url):
         url_imagen = subida["secure_url"]
         public_id = subida["public_id"]
     else:
-        # Almacenamiento persistente en la nube con MongoDB Atlas (GridFS)
+        # Almacenamiento directo en MongoDB Atlas (Base64 Data URI)
         contenido = archivo.read()
-        filename = secure_filename(archivo.filename or "evidencia.jpg")
         content_type = getattr(archivo, "content_type", None) or "image/jpeg"
 
-        # Conversión automática a JPEG estándar si Pillow puede procesarlo
+        # Optimización y conversión a JPEG para que ocupe muy poco espacio en Atlas
         try:
             from PIL import Image
             img = Image.open(BytesIO(contenido))
+            max_size = 1200
+            if img.width > max_size or img.height > max_size:
+                img.thumbnail((max_size, max_size))
             buf = BytesIO()
-            img.convert("RGB").save(buf, format="JPEG", quality=85)
+            img.convert("RGB").save(buf, format="JPEG", quality=80, optimize=True)
             contenido = buf.getvalue()
             content_type = "image/jpeg"
-            filename = f"{uuid.uuid4().hex}.jpg"
         except Exception:
             pass
 
-        fs = gridfs.GridFS(db)
-        file_id = fs.put(contenido, filename=filename, content_type=content_type)
-        url_imagen = f"{host_url.rstrip('/')}/api/imagenes/{file_id}"
+        b64_str = base64.b64encode(contenido).decode("utf-8")
+        url_imagen = f"data:{content_type};base64,{b64_str}"
 
     res = db.incidencias.update_one(
         {"_id": inc_id},
