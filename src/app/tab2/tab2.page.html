@@ -4,10 +4,18 @@
       <ion-icon name="arrow-back-outline" style="padding-right: 20px; cursor: pointer;" (click)="backPage()"></ion-icon>
       Incidencias
     </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cargarIncidencias()" title="Actualizar lista">
+        <ion-icon slot="icon-only" name="refresh-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
+    <ion-refresher-content pullingText="Desliza para actualizar" refreshingSpinner="crescent" refreshingText="Actualizando incidencias..."></ion-refresher-content>
+  </ion-refresher>
   <ion-searchbar
     [(ngModel)]="textoBusqueda"
     placeholder="Buscar por código, título o descripción...">

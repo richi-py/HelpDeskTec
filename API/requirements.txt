@@ -6,3 +6,5 @@ python-dotenv
 cloudinary
 werkzeug
 gunicorn
+pillow
+pillow-heif

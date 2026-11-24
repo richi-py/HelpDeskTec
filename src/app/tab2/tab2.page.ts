@@ -23,6 +23,8 @@ import {
   IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
+  IonRefresher,
+  IonRefresherContent,
   AlertController,
   LoadingController,
 } from '@ionic/angular';
@@ -34,6 +36,7 @@ import {
   checkmarkCircleOutline,
   timeOutline,
   arrowUndoOutline,
+  refreshOutline,
 } from 'ionicons/icons';
 import type {
   EstadoIncidencia,
@@ -86,6 +89,8 @@ export interface IncidenciaItem {
     IonCardTitle,
     IonCardSubtitle,
     IonCardContent,
+    IonRefresher,
+    IonRefresherContent,
     TiempoRelativoPipe,
   ],
 })
@@ -114,6 +119,32 @@ export class Tab2Page implements OnInit {
       checkmarkCircleOutline,
       timeOutline,
       arrowUndoOutline,
+      refreshOutline,
+    });
+  }
+
+  handleRefresh(event: any): void {
+    this.incidenciasService.getIncidencias().subscribe({
+      next: (lista) => {
+        this.ngZone.run(() => {
+          if (lista && lista.length > 0) {
+            this.incidencias = lista.map((inc) => this.mapearIncidencia(inc));
+            localStorage.setItem(
+              'helpdesk_tec_incidencias',
+              JSON.stringify(this.incidencias)
+            );
+          } else {
+            this.incidencias = [];
+            localStorage.removeItem('helpdesk_tec_incidencias');
+          }
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          event.target.complete();
+        });
+      },
+      error: () => {
+        event.target.complete();
+      },
     });
   }
 

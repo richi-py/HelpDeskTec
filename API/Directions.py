@@ -22,6 +22,7 @@ from BackEnd.Functions import (
     listar_notificaciones,
     marcar_notificacion_leida,
     obtener_cola_prioridad,
+    obtener_imagen_gridfs,
     obtener_incidencia_por_id,
     obtener_metricas_estructuras,
     obtener_perfil,
@@ -127,6 +128,11 @@ def route_subir_imagen(inc_id):
         tipo,
         request.host_url,
     )
+
+
+@app.route("/api/imagenes/<file_id>", methods=["GET"])
+def route_obtener_imagen(file_id):
+    return obtener_imagen_gridfs(file_id)
 
 @app.route("/api/notificaciones", methods=["GET"])
 @jwt_required()

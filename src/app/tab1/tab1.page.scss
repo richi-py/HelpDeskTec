@@ -17,9 +17,15 @@ ion-card-header {
     margin: 0 auto 6px auto;
 }
 
-.card{
-    display: flex;
-    justify-content: space-evenly;
+.card {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin-bottom: 12px;
+
+    ion-card {
+        margin: 0;
+    }
 }
 
 .listInsid{

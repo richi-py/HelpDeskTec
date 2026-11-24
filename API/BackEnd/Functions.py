@@ -1,8 +1,11 @@
 import os
 import uuid
+import gridfs
+from io import BytesIO
 from datetime import datetime, timezone
 from bson import ObjectId
 from bson.errors import InvalidId
+from flask import Response
 from flask_jwt_extended import create_access_token
 from pymongo import MongoClient, ReturnDocument
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -493,10 +496,29 @@ def subir_imagen_incidencia(inc_id_str, user_id_str, archivo, tipo, host_url):
         url_imagen = subida["secure_url"]
         public_id = subida["public_id"]
     else:
-        ext = os.path.splitext(secure_filename(archivo.filename or ""))[1] or ".jpg"
-        nombre_archivo = f"{uuid.uuid4().hex}{ext}"
-        archivo.save(os.path.join(UPLOAD_DIR, nombre_archivo))
-        url_imagen = f"{host_url}static/uploads/{nombre_archivo}"
+        # Almacenamiento persistente en la nube con MongoDB Atlas (GridFS)
+        contenido = archivo.read()
+        filename = secure_filename(archivo.filename or "evidencia.jpg")
+        content_type = getattr(archivo, "content_type", None) or "image/jpeg"
+
+        # Conversión automática de HEIC o formatos incompatibles a JPEG
+        if filename.lower().endswith((".heic", ".heif")) or content_type in ["image/heic", "image/heif"]:
+            try:
+                import pillow_heif
+                pillow_heif.register_heif_opener()
+                from PIL import Image
+                img = Image.open(BytesIO(contenido))
+                buf = BytesIO()
+                img.convert("RGB").save(buf, format="JPEG", quality=85)
+                contenido = buf.getvalue()
+                content_type = "image/jpeg"
+                filename = f"{uuid.uuid4().hex}.jpg"
+            except Exception:
+                pass
+
+        fs = gridfs.GridFS(db)
+        file_id = fs.put(contenido, filename=filename, content_type=content_type)
+        url_imagen = f"{host_url.rstrip('/')}/api/imagenes/{file_id}"
 
     res = db.incidencias.update_one(
         {"_id": inc_id},
@@ -518,6 +540,21 @@ def subir_imagen_incidencia(inc_id_str, user_id_str, archivo, tipo, host_url):
         return error_response("TICKET_NOT_FOUND", 404)
 
     return success_response({"url": url_imagen}, 201)
+
+
+def obtener_imagen_gridfs(file_id_str):
+    try:
+        oid = ObjectId(file_id_str)
+        fs = gridfs.GridFS(db)
+        if not fs.exists(oid):
+            return error_response("IMAGE_NOT_FOUND", 404)
+        grid_out = fs.get(oid)
+        response = Response(grid_out.read(), mimetype=grid_out.content_type or "image/jpeg")
+        response.headers["Cache-Control"] = "public, max-age=31536000"
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
+    except Exception:
+        return error_response("INVALID_IMAGE_ID", 400)
 
 
 # =========================================================

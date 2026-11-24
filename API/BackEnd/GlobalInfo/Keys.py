@@ -12,7 +12,7 @@ else:
 # Cadena de conexión a MongoDB Atlas (puedes definir MONGO_URI en tu .env o pegarla aquí)
 MONGO_URI = os.getenv(
     "MONGO_URI",
-    "mongodb+srv://USUARIO:PASSWORD@cluster0.xxxxx.mongodb.net/?retryWrites=true&w=majority",
+    "mongodb://richiDB:richisRLDB@ac-sljytld-shard-00-00.vcqupu6.mongodb.net:27017,ac-sljytld-shard-00-01.vcqupu6.mongodb.net:27017,ac-sljytld-shard-00-02.vcqupu6.mongodb.net:27017/helpdesk_db?ssl=true&replicaSet=atlas-z450kw-shard-0&authSource=admin&retryWrites=true&w=majority",
 )
 
 DB_NAME = os.getenv("DB_NAME", "helpdesk_db")

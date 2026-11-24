@@ -14,7 +14,13 @@ import {
   IonItem,
   IonLabel,
   IonBadge,
+  IonRefresher,
+  IonRefresherContent,
+  IonButtons,
+  IonIcon,
 } from '@ionic/angular';
+import { addIcons } from 'ionicons';
+import { refreshOutline } from 'ionicons/icons';
 import type { Incidencia, ResumenDashboard } from '../models/incidencia.model';
 import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
 import { IncidenciasService } from '../services/incidencias.service';
@@ -37,6 +43,10 @@ import { IncidenciasService } from '../services/incidencias.service';
     IonItem,
     IonLabel,
     IonBadge,
+    IonRefresher,
+    IonRefresherContent,
+    IonButtons,
+    IonIcon,
     TiempoRelativoPipe,
   ],
 })
@@ -64,7 +74,16 @@ export class Tab1Page implements OnInit {
     private cdr: ChangeDetectorRef,
     private ngZone: NgZone,
     private appRef: ApplicationRef
-  ) {}
+  ) {
+    addIcons({ refreshOutline });
+  }
+
+  handleRefresh(event: any): void {
+    this.cargarDatos();
+    setTimeout(() => {
+      event.target.complete();
+    }, 800);
+  }
 
   ngOnInit(): void {
     this.cargarDesdeCache();
