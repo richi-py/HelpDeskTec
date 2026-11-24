@@ -501,20 +501,17 @@ def subir_imagen_incidencia(inc_id_str, user_id_str, archivo, tipo, host_url):
         filename = secure_filename(archivo.filename or "evidencia.jpg")
         content_type = getattr(archivo, "content_type", None) or "image/jpeg"
 
-        # Conversión automática de HEIC o formatos incompatibles a JPEG
-        if filename.lower().endswith((".heic", ".heif")) or content_type in ["image/heic", "image/heif"]:
-            try:
-                import pillow_heif
-                pillow_heif.register_heif_opener()
-                from PIL import Image
-                img = Image.open(BytesIO(contenido))
-                buf = BytesIO()
-                img.convert("RGB").save(buf, format="JPEG", quality=85)
-                contenido = buf.getvalue()
-                content_type = "image/jpeg"
-                filename = f"{uuid.uuid4().hex}.jpg"
-            except Exception:
-                pass
+        # Conversión automática a JPEG estándar si Pillow puede procesarlo
+        try:
+            from PIL import Image
+            img = Image.open(BytesIO(contenido))
+            buf = BytesIO()
+            img.convert("RGB").save(buf, format="JPEG", quality=85)
+            contenido = buf.getvalue()
+            content_type = "image/jpeg"
+            filename = f"{uuid.uuid4().hex}.jpg"
+        except Exception:
+            pass
 
         fs = gridfs.GridFS(db)
         file_id = fs.put(contenido, filename=filename, content_type=content_type)
