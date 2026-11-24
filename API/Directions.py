@@ -13,12 +13,17 @@ from BackEnd.GlobalInfo.Keys import JWT_SECRET_KEY
 from BackEnd.Functions import (
     agregar_comentario,
     autenticar_usuario,
+    buscar_ticket_en_hash,
     cambiar_estado_incidencia,
     crear_incidencia,
+    desencolar_siguiente_ticket,
+    deshacer_accion_incidencia,
     listar_incidencias,
     listar_notificaciones,
     marcar_notificacion_leida,
+    obtener_cola_prioridad,
     obtener_incidencia_por_id,
+    obtener_metricas_estructuras,
     obtener_perfil,
     obtener_resumen,
     registrar_usuario,
@@ -33,10 +38,6 @@ CORS(app)
 JWTManager(app)
 
 
-# =========================================================
-# AUTH Y PERFIL
-# =========================================================
-
 @app.route("/api/auth/register", methods=["POST"])
 def route_register():
     return registrar_usuario(request.get_json() or {})
@@ -48,7 +49,7 @@ def route_login():
 
 
 @app.route("/api/auth/perfil", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_perfil():
     return obtener_perfil(get_jwt_identity())
 
@@ -58,14 +59,14 @@ def route_perfil():
 # =========================================================
 
 @app.route("/api/incidencias/resumen", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_resumen():
     claims = get_jwt()
     return obtener_resumen(get_jwt_identity(), claims.get("rol"))
 
 
 @app.route("/api/incidencias", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_listar_incidencias():
     claims = get_jwt()
     estado = request.args.get("estado")
@@ -84,38 +85,38 @@ def route_crear_incidencia():
 
 
 @app.route("/api/incidencias/<inc_id>", methods=["GET"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_detalle_incidencia(inc_id):
     return obtener_incidencia_por_id(inc_id)
 
 
 @app.route("/api/incidencias/<inc_id>/estado", methods=["PATCH"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_cambiar_estado(inc_id):
     claims = get_jwt()
     return cambiar_estado_incidencia(
         inc_id,
         get_jwt_identity(),
-        claims.get("nombre"),
+        claims.get("nombre") if claims else None,
         request.get_json() or {},
     )
 
 
 @app.route("/api/incidencias/<inc_id>/comentarios", methods=["POST"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_agregar_comentario(inc_id):
     claims = get_jwt()
     return agregar_comentario(
         inc_id,
         get_jwt_identity(),
-        claims.get("nombre"),
-        claims.get("rol"),
+        claims.get("nombre") if claims else None,
+        claims.get("rol") if claims else None,
         request.get_json() or {},
     )
 
 
 @app.route("/api/incidencias/<inc_id>/imagenes", methods=["POST"])
-@jwt_required()
+@jwt_required(optional=True)
 def route_subir_imagen(inc_id):
     archivo = request.files.get("imagen")
     tipo = request.form.get("tipo", "reporte")
@@ -126,11 +127,6 @@ def route_subir_imagen(inc_id):
         tipo,
         request.host_url,
     )
-
-
-# =========================================================
-# NOTIFICACIONES
-# =========================================================
 
 @app.route("/api/notificaciones", methods=["GET"])
 @jwt_required()
@@ -144,5 +140,37 @@ def route_marcar_notificacion(notif_id):
     return marcar_notificacion_leida(notif_id, get_jwt_identity())
 
 
+@app.route("/api/estructuras/metricas", methods=["GET"])
+def route_metricas_estructuras():
+    return obtener_metricas_estructuras()
+
+
+@app.route("/api/estructuras/cola-prioridad", methods=["GET"])
+def route_cola_prioridad():
+
+    return obtener_cola_prioridad()
+
+
+@app.route("/api/estructuras/siguiente", methods=["POST"])
+@jwt_required(optional=True)
+def route_siguiente_prioridad():
+
+    return desencolar_siguiente_ticket()
+
+
+@app.route("/api/estructuras/hash/<clave>", methods=["GET"])
+def route_buscar_hash(clave):
+
+    return buscar_ticket_en_hash(clave)
+
+
+@app.route("/api/incidencias/<inc_id>/deshacer", methods=["POST"])
+@jwt_required(optional=True)
+def route_deshacer_incidencia(inc_id):
+
+    return deshacer_accion_incidencia(inc_id)
+
+
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False)

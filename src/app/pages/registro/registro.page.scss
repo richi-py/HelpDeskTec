@@ -1,0 +1,99 @@
+ion-content {
+  background-color: #ffffff;
+  --background: #ffffff;
+}
+
+.registro-container {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px 40px;
+  box-sizing: border-box;
+}
+
+#mimg {
+  width: 200px;
+  max-width: 70%;
+  height: auto;
+  margin: 0 auto;
+}
+
+.subRegistro {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 4px;
+  font-size: 1.15rem;
+  color: #1e293b;
+}
+
+.descRegistro {
+  font-size: 0.85rem;
+  color: #64748b;
+  text-align: center;
+  margin: 0 0 16px;
+}
+
+.form {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+ion-list {
+  width: 100%;
+  max-width: 420px;
+  background: transparent;
+  padding: 0;
+}
+
+ion-input, ion-item {
+  overflow: visible !important;
+}
+
+ion-item {
+  --background: transparent;
+  --padding-start: 0;
+  --inner-padding-end: 0;
+}
+
+#btnRegistro {
+  width: 100%;
+  color: white;
+}
+
+.login-prompt {
+  margin-top: 24px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.has-account-text {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.login-link {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #2dd36f;
+  text-decoration: none;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}

@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone, ApplicationRef } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
@@ -14,20 +15,48 @@ import {
   IonList,
   IonItem,
   IonBadge,
+  IonModal,
+  IonButtons,
+  IonButton,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  AlertController,
+  LoadingController,
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { arrowBackOutline } from 'ionicons/icons';
-import type { EstadoIncidencia, Incidencia } from '../models/incidencia.model';
+import {
+  arrowBackOutline,
+  closeOutline,
+  imageOutline,
+  checkmarkCircleOutline,
+  timeOutline,
+  arrowUndoOutline,
+} from 'ionicons/icons';
+import type {
+  EstadoIncidencia,
+  ImagenIncidencia,
+  Incidencia,
+} from '../models/incidencia.model';
 import { TiempoRelativoPipe } from '../pipes/tiempo-relativo.pipe';
 import { IncidenciasService } from '../services/incidencias.service';
 
-export interface IncidenciaResumen {
+export interface IncidenciaItem {
+  id: string;
   codigo: string;
   titulo: string;
+  descripcion: string;
   estado: EstadoIncidencia;
   estadoTexto: string;
   badgeColor: string;
   created_at: string;
+  tipo?: string;
+  urgencia?: string;
+  usuario_nombre?: string;
+  imagenes: ImagenIncidencia[];
+  solucion?: string | null;
 }
 
 @Component({
@@ -35,6 +64,7 @@ export interface IncidenciaResumen {
   templateUrl: 'tab2.page.html',
   styleUrls: ['tab2.page.scss'],
   imports: [
+    CommonModule,
     FormsModule,
     IonHeader,
     IonToolbar,
@@ -48,6 +78,14 @@ export interface IncidenciaResumen {
     IonList,
     IonItem,
     IonBadge,
+    IonModal,
+    IonButtons,
+    IonButton,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
     TiempoRelativoPipe,
   ],
 })
@@ -55,83 +93,107 @@ export class Tab2Page implements OnInit {
   textoBusqueda = '';
   filtroEstado: 'todas' | EstadoIncidencia = 'todas';
 
-  incidencias: IncidenciaResumen[] = [
-    {
-      codigo: 'INC-0045',
-      titulo: 'Error en equipo de cómputo',
-      estado: 'pendiente',
-      estadoTexto: 'Pendiente',
-      badgeColor: 'medium',
-      created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    },
-    {
-      codigo: 'INC-0042',
-      titulo: 'No funciona el correo institucional',
-      estado: 'en_proceso',
-      estadoTexto: 'En proceso',
-      badgeColor: 'primary',
-      created_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-    },
-    {
-      codigo: 'INC-0041',
-      titulo: 'Fallo de red en aula 12',
-      estado: 'asignada',
-      estadoTexto: 'Asignada',
-      badgeColor: 'warning',
-      created_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-    },
-    {
-      codigo: 'INC-0039',
-      titulo: 'Instalación de software',
-      estado: 'resuelta',
-      estadoTexto: 'Resuelta',
-      badgeColor: 'success',
-      created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-    },
-  ];
+  incidenciaSeleccionada: IncidenciaItem | null = null;
+  modalAbierto = false;
+
+  incidencias: IncidenciaItem[] = [];
 
   constructor(
     private router: Router,
-    private incidenciasService: IncidenciasService
+    private incidenciasService: IncidenciasService,
+    private alertController: AlertController,
+    private loadingController: LoadingController,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private appRef: ApplicationRef
   ) {
     addIcons({
       arrowBackOutline,
+      closeOutline,
+      imageOutline,
+      checkmarkCircleOutline,
+      timeOutline,
+      arrowUndoOutline,
     });
   }
 
   ngOnInit(): void {
-    const token = localStorage.getItem('helpdesk_token');
-    if (!token) {
-      return;
-    }
+    this.cargarDesdeCache();
+    this.cargarIncidencias();
+  }
 
+  ionViewWillEnter(): void {
+    this.cargarDesdeCache();
+    this.cargarIncidencias();
+  }
+
+  private cargarDesdeCache(): void {
+    const cache = localStorage.getItem('helpdesk_tec_incidencias');
+    if (cache) {
+      try {
+        const datos = JSON.parse(cache);
+        if (datos && datos.length > 0) {
+          this.incidencias = datos;
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        }
+      } catch {}
+    }
+  }
+
+  cargarIncidencias(): void {
     this.incidenciasService.getIncidencias().subscribe({
       next: (lista) => {
-        this.incidencias = lista.map((inc) => this.mapearIncidencia(inc));
+        this.ngZone.run(() => {
+          if (lista && lista.length > 0) {
+            this.incidencias = lista.map((inc) => this.mapearIncidencia(inc));
+            localStorage.setItem(
+              'helpdesk_tec_incidencias',
+              JSON.stringify(this.incidencias)
+            );
+          } else {
+            this.incidencias = [];
+            localStorage.removeItem('helpdesk_tec_incidencias');
+          }
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        });
       },
-      error: () => {},
+      error: (err) => {
+        console.error('Error al cargar incidencias:', err);
+      },
     });
   }
 
-  private mapearIncidencia(inc: Incidencia): IncidenciaResumen {
+  private mapearIncidencia(inc: Incidencia): IncidenciaItem {
     const mapa: Record<EstadoIncidencia, { texto: string; color: string }> = {
       pendiente: { texto: 'Pendiente', color: 'medium' },
       asignada: { texto: 'Asignada', color: 'warning' },
       en_proceso: { texto: 'En proceso', color: 'primary' },
       resuelta: { texto: 'Resuelta', color: 'success' },
     };
-    const meta = mapa[inc.estado];
+    const meta = mapa[inc.estado] || { texto: inc.estado, color: 'medium' };
+
     return {
+      id: inc.id,
       codigo: inc.codigo,
       titulo: inc.titulo,
+      descripcion: inc.descripcion,
       estado: inc.estado,
       estadoTexto: meta.texto,
       badgeColor: meta.color,
       created_at: inc.created_at,
+      tipo: inc.tipo,
+      urgencia: inc.urgencia,
+      usuario_nombre: inc.usuario_nombre,
+      imagenes: inc.imagenes || [],
+      solucion: inc.solucion,
     };
   }
 
-  get incidenciasFiltradas(): IncidenciaResumen[] {
+  get incidenciasFiltradas(): IncidenciaItem[] {
     const termino = this.textoBusqueda.trim().toLowerCase();
 
     return this.incidencias.filter((inc) => {
@@ -140,9 +202,137 @@ export class Tab2Page implements OnInit {
       const coincideTexto =
         !termino ||
         inc.codigo.toLowerCase().includes(termino) ||
-        inc.titulo.toLowerCase().includes(termino);
+        inc.titulo.toLowerCase().includes(termino) ||
+        inc.descripcion.toLowerCase().includes(termino);
 
       return coincideEstado && coincideTexto;
+    });
+  }
+
+  verDetalle(inc: IncidenciaItem): void {
+    this.incidenciaSeleccionada = inc;
+    this.modalAbierto = true;
+  }
+
+  cerrarDetalle(): void {
+    this.modalAbierto = false;
+    this.incidenciaSeleccionada = null;
+  }
+
+  async cambiarEstado(nuevoEstado: EstadoIncidencia): Promise<void> {
+    if (!this.incidenciaSeleccionada) return;
+
+    let solucion: string | undefined = undefined;
+
+    if (nuevoEstado === 'resuelta') {
+      const prompt = await this.alertController.create({
+        header: 'Resolver incidencia',
+        message: 'Describe brevemente la solución aplicada:',
+        inputs: [
+          {
+            name: 'solucion',
+            type: 'textarea',
+            placeholder: 'Detalles de la solución...',
+          },
+        ],
+        buttons: [
+          { text: 'Cancelar', role: 'cancel' },
+          {
+            text: 'Resolver',
+            handler: (data) => {
+              solucion = data.solucion;
+              this.ejecutarCambioEstado(nuevoEstado, solucion);
+            },
+          },
+        ],
+      });
+      await prompt.present();
+      return;
+    }
+
+    this.ejecutarCambioEstado(nuevoEstado);
+  }
+
+  private async ejecutarCambioEstado(
+    nuevoEstado: EstadoIncidencia,
+    solucion?: string
+  ): Promise<void> {
+    if (!this.incidenciaSeleccionada) return;
+
+    const loading = await this.loadingController.create({
+      message: 'Actualizando estado...',
+    });
+    await loading.present();
+
+    this.incidenciasService
+      .cambiarEstado(this.incidenciaSeleccionada.id, nuevoEstado, solucion)
+      .subscribe({
+        next: async (res) => {
+          await loading.dismiss();
+          if (this.incidenciaSeleccionada) {
+            this.incidenciaSeleccionada.estado = nuevoEstado;
+            const mapa: Record<EstadoIncidencia, { texto: string; color: string }> = {
+              pendiente: { texto: 'Pendiente', color: 'medium' },
+              asignada: { texto: 'Asignada', color: 'warning' },
+              en_proceso: { texto: 'En proceso', color: 'primary' },
+              resuelta: { texto: 'Resuelta', color: 'success' },
+            };
+            this.incidenciaSeleccionada.estadoTexto = mapa[nuevoEstado].texto;
+            this.incidenciaSeleccionada.badgeColor = mapa[nuevoEstado].color;
+            if (solucion) {
+              this.incidenciaSeleccionada.solucion = solucion;
+            }
+          }
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.appRef.tick();
+          this.cargarIncidencias();
+        },
+        error: async (err) => {
+          await loading.dismiss();
+          console.error('Error al cambiar estado:', err);
+          const alerta = await this.alertController.create({
+            header: 'Error al actualizar estado',
+            message:
+              err?.error?.error ||
+              err?.error?.msg ||
+              'No se pudo actualizar el estado en HelpDesk.',
+            buttons: ['Aceptar'],
+          });
+          await alerta.present();
+        },
+      });
+  }
+
+  async deshacerAccion(): Promise<void> {
+    if (!this.incidenciaSeleccionada) return;
+
+    const loading = await this.loadingController.create({
+      message: 'Revirtiendo último cambio de estado...',
+    });
+    await loading.present();
+
+    this.incidenciasService.deshacerUltimoEstado(this.incidenciaSeleccionada.id).subscribe({
+      next: async (res) => {
+        await loading.dismiss();
+        const alerta = await this.alertController.create({
+          header: 'Cambio Deshecho',
+          message: `Se restauró el estado anterior: "${res.estado_anterior_restaurado}".`,
+          buttons: ['Aceptar'],
+        });
+        await alerta.present();
+        this.modalAbierto = false;
+        this.cargarIncidencias();
+      },
+      error: async () => {
+        await loading.dismiss();
+        const alerta = await this.alertController.create({
+          header: 'No se puede deshacer',
+          message: 'Esta incidencia no tiene cambios previos para revertir.',
+          buttons: ['Aceptar'],
+        });
+        await alerta.present();
+      },
     });
   }
 

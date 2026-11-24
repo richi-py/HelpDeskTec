@@ -1,7 +1,13 @@
 import os
+from pathlib import Path
 from dotenv import load_dotenv
 
-load_dotenv()
+# Carga .env ubicado en la carpeta API/ o en la raíz del proyecto
+env_path = Path(__file__).resolve().parent.parent.parent / ".env"
+if env_path.exists():
+    load_dotenv(dotenv_path=env_path)
+else:
+    load_dotenv()
 
 # Cadena de conexión a MongoDB Atlas (puedes definir MONGO_URI en tu .env o pegarla aquí)
 MONGO_URI = os.getenv(

@@ -1,11 +1,11 @@
-<ion-content [scrollY]="false">
-    <ion-img src="assets/icon/image.png" id="mimg" style="padding-top: 60px;"></ion-img>
+<ion-content>
+    <ion-img src="assets/icon/image.png" id="mimg" style="padding-top: 40px;"></ion-img>
 
     <p class="subLogin"><strong>Inicia sesion para continuar</strong></p>
     <div class="form">
         <ion-list>
             <ion-item style="padding-bottom: 20px;">
-                <ion-input type="email" [(ngModel)]="correo" name="correo" labelPlacement="floating" placeholder="JuanHT@gmail.com" fill="outline">
+                <ion-input type="email" [(ngModel)]="correo" name="correo" labelPlacement="floating" placeholder="JuanHT@empresa.com" fill="outline">
                     <ion-icon name="person-outline" slot="start"></ion-icon>
                     <div slot="label">Email</div>
                 </ion-input>
@@ -19,11 +19,30 @@
             </ion-item>
         </ion-list>
         @if (errorMensaje) {
-          <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 12px;">
+          <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 14px; font-size: 0.9rem; font-weight: 500;">
             {{ errorMensaje }}
           </p>
         }
-        <ion-button style="padding-top: 20px; color: #FFFFFF;" (click)="pageHelpTec()" expand="block" color="success">Ingresar</ion-button>
+        <ion-button 
+          id="btnLog"
+          style="padding-top: 20px; color: #FFFFFF;" 
+          (click)="pageHelpTec()" 
+          [disabled]="cargando"
+          expand="block" 
+          color="success">
+          @if (cargando) {
+            <ion-spinner name="crescent" color="light"></ion-spinner>
+          } @else {
+            Ingresar
+          }
+        </ion-button>
 
+        <div class="crear-cuenta-wrapper">
+          <p class="crear-cuenta-pregunta">¿No tienes una cuenta aún?</p>
+          <a class="crear-cuenta-link" (click)="irARegistro()">
+            <ion-icon name="person-add-outline"></ion-icon>
+            <span>CREAR CUENTA EN HELPDESK</span>
+          </a>
+        </div>
     </div>
 </ion-content>

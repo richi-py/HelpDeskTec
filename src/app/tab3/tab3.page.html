@@ -1,8 +1,205 @@
+<ion-header [translucent]="true">
+  <ion-toolbar class="tech-toolbar">
+    <ion-title>Perfil y Reportes</ion-title>
+  </ion-toolbar>
+</ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Tab 3</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content [fullscreen]="true" class="page-content">
+  <!-- Tarjeta de información del Técnico -->
+  <ion-grid class="user-card">
+    <ion-row class="profile-header ion-padding-vertical">
+      <ion-col size="4" class="ion-text-center">
+        <ion-avatar class="tech-avatar">
+          <img
+            alt="Técnico"
+            [src]="usuario?.avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+          />
+        </ion-avatar>
+      </ion-col>
+      <ion-col size="8" class="tech-info">
+        <h2 class="tech-name">{{ usuario?.nombre || 'Técnico de Soporte' }}</h2>
+        <p class="tech-role">
+          <span class="badge-role">Técnico HelpDesk</span>
+        </p>
+        <p class="tech-email">{{ usuario?.correo || 'tecnico@helpdesk.com' }}</p>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- Filtros de Reportes (Como en la imagen 8. Reportes) -->
+  <div class="report-filters-card">
+    <div class="filter-field">
+      <label class="filter-label">Tipo de reporte</label>
+      <div class="select-wrapper">
+        <ion-select
+          [(ngModel)]="tipoReporte"
+          (ionChange)="onFiltroChange()"
+          interface="popover"
+          class="custom-select"
+        >
+          <ion-select-option value="estado">Incidencias por estado</ion-select-option>
+          <ion-select-option value="urgencia">Incidencias por urgencia</ion-select-option>
+          <ion-select-option value="tipo">Incidencias por categoría</ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+
+    <div class="filter-field">
+      <label class="filter-label">Rango de fechas</label>
+      <div class="select-wrapper">
+        <ion-select
+          [(ngModel)]="rangoFechas"
+          (ionChange)="onFiltroChange()"
+          interface="popover"
+          class="custom-select"
+        >
+          <ion-select-option value="7dias">Últimos 7 días</ion-select-option>
+          <ion-select-option value="30dias">Últimos 30 días</ion-select-option>
+          <ion-select-option value="todo">Todo el histórico</ion-select-option>
+        </ion-select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Sección de Gráfica (Como en el mockup) -->
+  <div class="chart-section">
+    <h3 class="chart-title">{{ getTituloGrafica() }}</h3>
+
+    <div class="chart-card">
+      <div class="grid-lines">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+
+      <div class="bars-container">
+        @for (item of datosGrafica; track item.etiqueta) {
+          <div class="bar-item">
+            <span class="bar-value">{{ item.valor }}</span>
+            <div
+              [class]="'bar-column ' + item.claseColor"
+              [style.height.%]="calcularAltura(item.valor)"
+            ></div>
+            <span class="bar-label">{{ item.etiqueta }}</span>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Botón Principal Funcional: Generar Reporte ⤓ -->
+    <ion-button
+      expand="block"
+      class="btn-generar-reporte"
+      (click)="generarReporte()"
+    >
+      <ion-icon slot="end" name="download-outline"></ion-icon>
+      Generar reporte
+    </ion-button>
+  </div>
+
+  <!-- Menú de Opciones del Perfil Técnico -->
+  <ion-list lines="none" class="tech-menu">
+    <ion-item id="open-modal-datos-tec" button>
+      <ion-icon slot="start" name="person-outline" class="menu-icon"></ion-icon>
+      <ion-label>Mis datos de cuenta</ion-label>
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-item>
+
+    <ion-item>
+      <ion-icon slot="start" name="settings-outline" class="menu-icon"></ion-icon>
+      <ion-label>Modo oscuro</ion-label>
+      <ion-toggle
+        slot="end"
+        [checked]="paletteToggle"
+        (ionChange)="toggleChange($event)"
+        justify="space-between"
+      >
+      </ion-toggle>
+    </ion-item>
+
+    <ion-item (click)="cerrarSesion()" button class="item-logout">
+      <ion-icon slot="start" name="log-out-outline" color="danger"></ion-icon>
+      <ion-label color="danger">Cerrar sesión</ion-label>
+      <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
+    </ion-item>
+  </ion-list>
+
+  <!-- MODAL: MIS DATOS DE TÉCNICO -->
+  <ion-modal trigger="open-modal-datos-tec" #modalDatosTec>
+    <ion-header>
+      <ion-toolbar class="tech-toolbar">
+        <ion-title>Ficha Técnica</ion-title>
+        <ion-buttons slot="end">
+          <ion-button (click)="modalDatosTec.dismiss()">
+            <ion-icon name="close-outline"></ion-icon>
+          </ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+
+    <ion-content class="ion-padding ion-background-white">
+      <div class="modal-body">
+        <div class="ion-text-center ion-margin-bottom">
+          <ion-avatar class="modal-avatar">
+            <img
+              alt="Técnico"
+              [src]="usuario?.avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+            />
+          </ion-avatar>
+          <h3 style="margin: 8px 0 2px 0; font-weight: 700;">{{ usuario?.nombre || 'Técnico HelpDesk' }}</h3>
+          <p style="margin: 0; color: #15803d; font-size: 13px; font-weight: 600;">Técnico Especialista</p>
+        </div>
+
+        <ion-item class="ion-margin-bottom" fill="outline">
+          <ion-icon name="mail-outline" slot="start" color="success"></ion-icon>
+          <ion-input
+            label="Correo electrónico"
+            labelPlacement="floating"
+            [value]="usuario?.correo || 'Sin correo'"
+            readonly="true"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-bottom" fill="outline">
+          <ion-icon name="business-outline" slot="start" color="success"></ion-icon>
+          <ion-input
+            label="Área / Departamento"
+            labelPlacement="floating"
+            [value]="usuario?.area || 'Soporte Técnico & TI'"
+            readonly="true"
+          ></ion-input>
+        </ion-item>
+
+        <ion-item class="ion-margin-bottom" fill="outline">
+          <ion-icon name="call-outline" slot="start" color="success"></ion-icon>
+          <ion-input
+            label="Teléfono de contacto"
+            labelPlacement="floating"
+            [value]="usuario?.telefono || 'No registrado'"
+            readonly="true"
+          ></ion-input>
+        </ion-item>
+
+        <div class="tech-stats-grid">
+          <div class="stat-box">
+            <span class="stat-number">{{ resumen.en_proceso + resumen.asignadas }}</span>
+            <span class="stat-label">Atendiendo</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-number text-green">{{ resumen.resueltas }}</span>
+            <span class="stat-label">Resueltas</span>
+          </div>
+        </div>
+
+        <ion-button
+          expand="block"
+          class="btn-generar-reporte ion-margin-top"
+          (click)="modalDatosTec.dismiss()"
+        >
+          Cerrar
+        </ion-button>
+      </div>
+    </ion-content>
+  </ion-modal>
 </ion-content>

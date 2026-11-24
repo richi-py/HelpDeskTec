@@ -51,12 +51,18 @@
 
   <ion-list>
     @for (item of incidenciasRecientes; track item.codigo) {
-      <ion-item>
+      <ion-item (click)="ViewAll()" button>
         <ion-label>
           <h3>#{{ item.codigo }} - {{ item.titulo }}</h3>
           <p>{{ item.created_at | tiempoRelativo }}</p>
         </ion-label>
         <ion-badge slot="end" [color]="item.badgeColor">{{ item.estadoTexto }}</ion-badge>
+      </ion-item>
+    } @empty {
+      <ion-item lines="none">
+        <ion-label class="ion-text-center" color="medium">
+          <p>No hay incidencias activas en este momento.</p>
+        </ion-label>
       </ion-item>
     }
   </ion-list>

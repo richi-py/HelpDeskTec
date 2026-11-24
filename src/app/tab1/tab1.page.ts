@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone, ApplicationRef } from '@angular/core';
 import { Router } from '@angular/router';
 import {
   IonHeader,
@@ -41,13 +41,13 @@ import { IncidenciasService } from '../services/incidencias.service';
   ],
 })
 export class Tab1Page implements OnInit {
-  nombreUsuario = 'Carlos';
+  nombreUsuario = 'Técnico';
 
   resumen: ResumenDashboard = {
     pendientes: 0,
-    asignadas: 4,
-    en_proceso: 2,
-    resueltas: 12,
+    asignadas: 0,
+    en_proceso: 0,
+    resueltas: 0,
   };
 
   incidenciasRecientes: Array<{
@@ -56,50 +56,101 @@ export class Tab1Page implements OnInit {
     estadoTexto: string;
     badgeColor: string;
     created_at: string;
-  }> = [
-    {
-      codigo: 'INC-0041',
-      titulo: 'Fallo de red en aula 12',
-      estadoTexto: 'Asignada',
-      badgeColor: 'warning',
-      created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-    },
-  ];
+  }> = [];
 
   constructor(
     private router: Router,
-    private incidenciasService: IncidenciasService
+    private incidenciasService: IncidenciasService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private appRef: ApplicationRef
   ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('helpdesk_token');
-    if (!token) {
-      return;
-    }
+    this.cargarDesdeCache();
+    this.cargarDatos();
+  }
 
+  ionViewWillEnter(): void {
+    this.cargarDesdeCache();
+    this.cargarDatos();
+  }
+
+  private cargarDesdeCache(): void {
+    const usr = this.incidenciasService.getUsuarioActual();
+    if (usr?.nombre) {
+      this.nombreUsuario = usr.nombre.split(' ')[0] || usr.nombre;
+    }
+    const cacheResumen = localStorage.getItem('helpdesk_tec_resumen');
+    if (cacheResumen) {
+      try {
+        this.resumen = JSON.parse(cacheResumen);
+      } catch {}
+    }
+    const cacheTickets = localStorage.getItem('helpdesk_tec_recientes');
+    if (cacheTickets) {
+      try {
+        this.incidenciasRecientes = JSON.parse(cacheTickets);
+      } catch {}
+    }
+    this.cdr.markForCheck();
+    this.cdr.detectChanges();
+    this.appRef.tick();
+  }
+
+  cargarDatos(): void {
     this.incidenciasService.getPerfil().subscribe({
       next: (perfil) => {
-        this.nombreUsuario = perfil.nombre.split(' ')[0] || perfil.nombre;
+        this.ngZone.run(() => {
+          if (perfil?.nombre) {
+            this.nombreUsuario = perfil.nombre.split(' ')[0] || perfil.nombre;
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+            this.appRef.tick();
+          }
+        });
       },
       error: () => {},
     });
 
     this.incidenciasService.getResumen().subscribe({
       next: (resumen) => {
-        this.resumen = resumen;
+        this.ngZone.run(() => {
+          if (resumen) {
+            this.resumen = resumen;
+            localStorage.setItem('helpdesk_tec_resumen', JSON.stringify(resumen));
+            this.cdr.markForCheck();
+            this.cdr.detectChanges();
+            this.appRef.tick();
+          }
+        });
       },
       error: () => {},
     });
 
     this.incidenciasService.getIncidencias().subscribe({
       next: (lista) => {
-        this.incidenciasRecientes = lista.slice(0, 1).map((inc: Incidencia) => ({
-          codigo: inc.codigo,
-          titulo: inc.titulo,
-          estadoTexto: this.etiquetaEstado(inc.estado),
-          badgeColor: this.colorEstado(inc.estado),
-          created_at: inc.created_at,
-        }));
+        this.ngZone.run(() => {
+          if (lista && lista.length > 0) {
+            this.incidenciasRecientes = lista.slice(0, 5).map((inc: Incidencia) => ({
+              codigo: inc.codigo || (inc.id ? inc.id.substring(0, 6) : 'INC'),
+              titulo: inc.titulo,
+              estadoTexto: this.etiquetaEstado(inc.estado),
+              badgeColor: this.colorEstado(inc.estado),
+              created_at: inc.created_at,
+            }));
+            localStorage.setItem(
+              'helpdesk_tec_recientes',
+              JSON.stringify(this.incidenciasRecientes)
+            );
+          } else {
+            this.incidenciasRecientes = [];
+            localStorage.removeItem('helpdesk_tec_recientes');
+          }
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        });
       },
       error: () => {},
     });

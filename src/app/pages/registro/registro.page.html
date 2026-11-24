@@ -1,0 +1,142 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar style="--background: #ffffff;">
+    <ion-buttons slot="start">
+      <ion-button (click)="volverAlLogin()" color="dark">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title style="font-size: 1.05rem; font-weight: 600;">Crear Cuenta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="registro-container">
+    <ion-img src="assets/icon/image.png" id="mimg"></ion-img>
+
+    <p class="subRegistro"><strong>Registro de Personal Técnico</strong></p>
+    <p class="descRegistro">Completa tus datos para acceder al panel técnico</p>
+
+    <div class="form">
+      <ion-list>
+        <!-- Nombre -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="text"
+            [(ngModel)]="nombre"
+            name="nombre"
+            labelPlacement="floating"
+            placeholder="Carlos López"
+            fill="outline">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <div slot="label">Nombre Completo</div>
+          </ion-input>
+        </ion-item>
+
+        <!-- Área -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="text"
+            [(ngModel)]="area"
+            name="area"
+            labelPlacement="floating"
+            placeholder="Soporte Técnico / Redes"
+            fill="outline">
+            <ion-icon name="briefcase-outline" slot="start"></ion-icon>
+            <div slot="label">Área / Departamento</div>
+          </ion-input>
+        </ion-item>
+
+        <!-- Teléfono -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="tel"
+            [(ngModel)]="telefono"
+            name="telefono"
+            labelPlacement="floating"
+            placeholder="5551234567"
+            fill="outline">
+            <ion-icon name="call-outline" slot="start"></ion-icon>
+            <div slot="label">Teléfono (opcional)</div>
+          </ion-input>
+        </ion-item>
+
+        <!-- Correo -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="email"
+            [(ngModel)]="correo"
+            name="correo"
+            labelPlacement="floating"
+            placeholder="tecnico@empresa.com"
+            fill="outline">
+            <ion-icon name="person-outline" slot="start"></ion-icon>
+            <div slot="label">Correo Electrónico</div>
+          </ion-input>
+        </ion-item>
+
+        <!-- Contraseña -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="password"
+            [(ngModel)]="password"
+            name="password"
+            password-toggle="true"
+            fill="outline"
+            label-placement="floating">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <div slot="label">Contraseña</div>
+            <ion-input-password-toggle slot="end" color="success"></ion-input-password-toggle>
+          </ion-input>
+        </ion-item>
+
+        <!-- Confirmar Contraseña -->
+        <ion-item style="padding-bottom: 16px;">
+          <ion-input
+            type="password"
+            [(ngModel)]="confirmPassword"
+            name="confirmPassword"
+            password-toggle="true"
+            fill="outline"
+            label-placement="floating">
+            <ion-icon name="lock-closed-outline" slot="start"></ion-icon>
+            <div slot="label">Confirmar Contraseña</div>
+            <ion-input-password-toggle slot="end" color="success"></ion-input-password-toggle>
+          </ion-input>
+        </ion-item>
+      </ion-list>
+
+      @if (errorMensaje) {
+        <p class="ion-text-center" style="color: var(--ion-color-danger); margin-top: 10px; font-size: 0.9rem; font-weight: 500;">
+          {{ errorMensaje }}
+        </p>
+      }
+
+      @if (exitoMensaje) {
+        <p class="ion-text-center" style="color: var(--ion-color-success); margin-top: 10px; font-size: 0.95rem; font-weight: 600;">
+          {{ exitoMensaje }}
+        </p>
+      }
+
+      <ion-button
+        id="btnRegistro"
+        style="padding-top: 14px; color: #FFFFFF;"
+        (click)="registrarTecnico()"
+        [disabled]="cargando"
+        expand="block"
+        color="success">
+        @if (cargando) {
+          <ion-spinner name="crescent" color="light"></ion-spinner>
+        } @else {
+          Registrarse
+        }
+      </ion-button>
+
+      <div class="login-prompt">
+        <p class="has-account-text">¿Ya tienes cuenta?</p>
+        <a class="login-link" (click)="volverAlLogin()">
+          INICIAR SESIÓN
+        </a>
+      </div>
+    </div>
+  </div>
+</ion-content>

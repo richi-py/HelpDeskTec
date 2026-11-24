@@ -1,34 +1,142 @@
-
 ion-segment-button {
-  --color-checked: #ffff;
-  --padding-start: 4px;
-  --padding-end: 4px;
+  --color-checked: #ffffff;
+  --padding-top: 0px;
+  --padding-bottom: 0px;
+  --padding-start: 6px;
+  --padding-end: 6px;
   --background-checked: #226340;
-  --background: #EDEDED;
-  --color:black;
-  border-radius: 15px;
-  min-width: auto;
-  font-size: 13px;
-  gap: 8px;
+  --background: #ededed;
+  --color: #0f172a;
+  --indicator-color: transparent;
+  border-radius: 14px;
+  min-width: 0;
+  flex: 1;
+  font-size: 12px;
+  margin: 0;
+  min-height: 38px;
+  height: 38px;
+}
+
+ion-segment-button::part(native) {
+  padding-top: 0;
+  padding-bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 ion-segment {
-  gap: 8px;
-  justify-content: space-evenly;
-}
-
-ion-segment-button:first-of-type {
-  margin-left: 16px;
-}
-
-ion-segment-button:last-of-type {
-  margin-right: 16px;
+  display: flex;
+  gap: 6px;
+  justify-content: space-between;
+  --background: transparent;
+  width: 100%;
 }
 
 ion-segment-button ion-label {
   text-transform: none;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: normal;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.listIn{
-    padding-top: 30px;
+.listIn {
+  padding-top: 30px;
+}
+
+.detalle-header {
+  margin-bottom: 16px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #111;
+  }
+
+  .badges-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+
+  .fecha-reporte {
+    font-size: 13px;
+    color: #666;
+    margin: 4px 0 0 0;
+  }
+}
+
+.card-info,
+.card-fotos,
+.card-solucion {
+  margin: 0 0 16px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  border-radius: 12px;
+}
+
+.galeria-fotos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 12px;
+  margin-top: 8px;
+
+  .foto-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #f4f5f8;
+    border: 1px solid #e0e0e0;
+    padding: 6px;
+
+    .foto-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.2s;
+
+      &:hover {
+        transform: scale(1.03);
+      }
+    }
+
+    .foto-tipo {
+      font-size: 11px;
+      color: #666;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+  }
+}
+
+.card-solucion {
+  border-left: 4px solid #2dd36f;
+  background: #f4fbf7;
+}
+
+.acciones-tecnico {
+  margin-top: 24px;
+  padding-bottom: 24px;
+
+  h4 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #333;
+  }
+
+  .botones-estado {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
 }

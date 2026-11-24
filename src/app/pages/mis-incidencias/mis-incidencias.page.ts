@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, NgZone, ApplicationRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -52,87 +52,38 @@ export interface Incidencia {
 })
 export class MisIncidenciasPage implements OnInit {
   filtro: string = 'asignadas';
+  incidencias: Incidencia[] = [];
 
-  incidencias: Incidencia[] = [
-    {
-      id: 'INC-0041',
-      titulo: 'Fallo de red en aula 12',
-      created_at: new Date(Date.now() - 2 * 3600 * 1000).toISOString(),
-      estado: 'asignadas',
-      badgeColor: 'warning',
-      badgeTexto: 'Asignada',
-    },
-    {
-      id: 'INC-0042',
-      titulo: 'Impresora sin conexión',
-      created_at: new Date(Date.now() - 4 * 3600 * 1000).toISOString(),
-      estado: 'asignadas',
-      badgeColor: 'warning',
-      badgeTexto: 'Asignada',
-    },
-    {
-      id: 'INC-0043',
-      titulo: 'Proyector no enciende',
-      created_at: new Date(Date.now() - 24 * 3600 * 1000).toISOString(),
-      estado: 'asignadas',
-      badgeColor: 'warning',
-      badgeTexto: 'Asignada',
-    },
-    {
-      id: 'INC-0044',
-      titulo: 'Actualización de software',
-      created_at: new Date(Date.now() - 26 * 3600 * 1000).toISOString(),
-      estado: 'asignadas',
-      badgeColor: 'warning',
-      badgeTexto: 'Asignada',
-    },
-    {
-      id: 'INC-0038',
-      titulo: 'Revisión de cableado estructurado',
-      created_at: new Date(Date.now() - 3 * 3600 * 1000).toISOString(),
-      estado: 'proceso',
-      badgeColor: 'primary',
-      badgeTexto: 'En proceso',
-    },
-    {
-      id: 'INC-0039',
-      titulo: 'Mantenimiento de servidor local',
-      created_at: new Date(Date.now() - 5 * 3600 * 1000).toISOString(),
-      estado: 'proceso',
-      badgeColor: 'primary',
-      badgeTexto: 'En proceso',
-    },
-    {
-      id: 'INC-0025',
-      titulo: 'Cambio de tóner en Dirección',
-      created_at: new Date(Date.now() - 6 * 3600 * 1000).toISOString(),
-      estado: 'resueltas',
-      badgeColor: 'success',
-      badgeTexto: 'Resuelta',
-    },
-    {
-      id: 'INC-0026',
-      titulo: 'Instalación de antivirus',
-      created_at: new Date(Date.now() - 28 * 3600 * 1000).toISOString(),
-      estado: 'resueltas',
-      badgeColor: 'success',
-      badgeTexto: 'Resuelta',
-    },
-  ];
-
-  constructor(private incidenciasService: IncidenciasService) {}
+  constructor(
+    private incidenciasService: IncidenciasService,
+    private cdr: ChangeDetectorRef,
+    private ngZone: NgZone,
+    private appRef: ApplicationRef
+  ) {}
 
   ngOnInit(): void {
-    const token = localStorage.getItem('helpdesk_token');
-    if (!token) {
-      return;
-    }
+    this.cargarIncidencias();
+  }
 
+  ionViewWillEnter(): void {
+    this.cargarIncidencias();
+  }
+
+  cargarIncidencias(): void {
     this.incidenciasService.getIncidencias().subscribe({
       next: (lista) => {
-        this.incidencias = lista
-          .filter((inc) => inc.estado !== 'pendiente')
-          .map((inc) => this.mapearIncidencia(inc));
+        this.ngZone.run(() => {
+          if (lista && lista.length > 0) {
+            this.incidencias = lista
+              .filter((inc) => inc.estado !== 'pendiente')
+              .map((inc) => this.mapearIncidencia(inc));
+          } else {
+            this.incidencias = [];
+          }
+          this.cdr.markForCheck();
+          this.cdr.detectChanges();
+          this.appRef.tick();
+        });
       },
       error: () => {},
     });
