@@ -100,7 +100,7 @@
 
   <!-- Menú de Opciones del Perfil Técnico -->
   <ion-list lines="none" class="tech-menu">
-    <ion-item id="open-modal-datos-tec" button>
+    <ion-item (click)="abrirModalDatos(true)" button>
       <ion-icon slot="start" name="person-outline" class="menu-icon"></ion-icon>
       <ion-label>Mis datos de cuenta</ion-label>
       <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
@@ -125,81 +125,109 @@
     </ion-item>
   </ion-list>
 
-  <!-- MODAL: MIS DATOS DE TÉCNICO -->
-  <ion-modal trigger="open-modal-datos-tec" #modalDatosTec>
-    <ion-header>
-      <ion-toolbar class="tech-toolbar">
-        <ion-title>Ficha Técnica</ion-title>
-        <ion-buttons slot="end">
-          <ion-button (click)="modalDatosTec.dismiss()">
-            <ion-icon name="close-outline"></ion-icon>
+  <!-- MODAL: MIS DATOS DE CUENTA (Igual que en la App de Usuario) -->
+  <ion-modal [isOpen]="modalDatosAbierto" (didDismiss)="abrirModalDatos(false)">
+    <ng-template>
+      <ion-header>
+        <ion-toolbar class="tech-toolbar">
+          <ion-title>Mis Datos de Cuenta</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="abrirModalDatos(false)">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="ion-padding modal-datos-content">
+        <div class="datos-cuenta-card">
+          <div class="avatar-container">
+            <ion-avatar class="modal-avatar">
+              <img
+                alt="Técnico"
+                [src]="usuario?.avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
+              />
+            </ion-avatar>
+            <h2>{{ usuario?.nombre || 'Técnico HelpDesk' }}</h2>
+            <ion-badge color="success" class="badge-rol">
+              <ion-icon name="checkmark-circle-outline" style="vertical-align: middle; margin-right: 4px;"></ion-icon>
+              Cuenta Activa &bull; {{ (usuario?.rol || 'tecnico') | uppercase }}
+            </ion-badge>
+          </div>
+
+          <div class="info-list">
+            <div class="info-row">
+              <div class="info-icon">
+                <ion-icon name="person-outline" color="success"></ion-icon>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Nombre Completo</span>
+                <span class="info-value">{{ usuario?.nombre || 'No registrado' }}</span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">
+                <ion-icon name="mail-outline" color="success"></ion-icon>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Correo Electrónico</span>
+                <span class="info-value">{{ usuario?.correo || 'No registrado' }}</span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">
+                <ion-icon name="business-outline" color="success"></ion-icon>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Área / Especialidad</span>
+                <span class="info-value">{{ usuario?.area || 'Soporte Técnico & TI' }}</span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">
+                <ion-icon name="call-outline" color="success"></ion-icon>
+              </div>
+              <div class="info-text">
+                <span class="info-label">Teléfono de Contacto</span>
+                <span class="info-value">{{ usuario?.telefono || 'No registrado' }}</span>
+              </div>
+            </div>
+
+            <div class="info-row">
+              <div class="info-icon">
+                <ion-icon name="finger-print-outline" color="success"></ion-icon>
+              </div>
+              <div class="info-text">
+                <span class="info-label">ID de Técnico</span>
+                <span class="info-value id-code">{{ usuario?.id || 'TEC-001' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tech-stats-grid">
+            <div class="stat-box">
+              <span class="stat-number">{{ (resumen.en_proceso || 0) + (resumen.asignadas || 0) }}</span>
+              <span class="stat-label">Atendiendo</span>
+            </div>
+            <div class="stat-box">
+              <span class="stat-number text-green">{{ resumen.resueltas || 0 }}</span>
+              <span class="stat-label">Resueltas</span>
+            </div>
+          </div>
+
+          <ion-button
+            expand="block"
+            shape="round"
+            class="btn-generar-reporte ion-margin-top"
+            (click)="abrirModalDatos(false)"
+          >
+            Cerrar
           </ion-button>
-        </ion-buttons>
-      </ion-toolbar>
-    </ion-header>
-
-    <ion-content class="ion-padding ion-background-white">
-      <div class="modal-body">
-        <div class="ion-text-center ion-margin-bottom">
-          <ion-avatar class="modal-avatar">
-            <img
-              alt="Técnico"
-              [src]="usuario?.avatar_url || 'https://ionicframework.com/docs/img/demos/avatar.svg'"
-            />
-          </ion-avatar>
-          <h3 style="margin: 8px 0 2px 0; font-weight: 700;">{{ usuario?.nombre || 'Técnico HelpDesk' }}</h3>
-          <p style="margin: 0; color: #15803d; font-size: 13px; font-weight: 600;">Técnico Especialista</p>
         </div>
-
-        <ion-item class="ion-margin-bottom" fill="outline">
-          <ion-icon name="mail-outline" slot="start" color="success"></ion-icon>
-          <ion-input
-            label="Correo electrónico"
-            labelPlacement="floating"
-            [value]="usuario?.correo || 'Sin correo'"
-            readonly="true"
-          ></ion-input>
-        </ion-item>
-
-        <ion-item class="ion-margin-bottom" fill="outline">
-          <ion-icon name="business-outline" slot="start" color="success"></ion-icon>
-          <ion-input
-            label="Área / Departamento"
-            labelPlacement="floating"
-            [value]="usuario?.area || 'Soporte Técnico & TI'"
-            readonly="true"
-          ></ion-input>
-        </ion-item>
-
-        <ion-item class="ion-margin-bottom" fill="outline">
-          <ion-icon name="call-outline" slot="start" color="success"></ion-icon>
-          <ion-input
-            label="Teléfono de contacto"
-            labelPlacement="floating"
-            [value]="usuario?.telefono || 'No registrado'"
-            readonly="true"
-          ></ion-input>
-        </ion-item>
-
-        <div class="tech-stats-grid">
-          <div class="stat-box">
-            <span class="stat-number">{{ resumen.en_proceso + resumen.asignadas }}</span>
-            <span class="stat-label">Atendiendo</span>
-          </div>
-          <div class="stat-box">
-            <span class="stat-number text-green">{{ resumen.resueltas }}</span>
-            <span class="stat-label">Resueltas</span>
-          </div>
-        </div>
-
-        <ion-button
-          expand="block"
-          class="btn-generar-reporte ion-margin-top"
-          (click)="modalDatosTec.dismiss()"
-        >
-          Cerrar
-        </ion-button>
-      </div>
-    </ion-content>
+      </ion-content>
+    </ng-template>
   </ion-modal>
 </ion-content>

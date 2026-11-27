@@ -22,9 +22,9 @@ import {
   IonRow,
   IonGrid,
   IonButtons,
-  IonInput,
   IonButton,
   IonModal,
+  IonBadge,
   IonSelect,
   IonSelectOption,
   AlertController,
@@ -44,6 +44,8 @@ import {
   documentTextOutline,
   barChartOutline,
   checkmarkDoneOutline,
+  checkmarkCircleOutline,
+  fingerPrintOutline,
 } from 'ionicons/icons';
 import { Router } from '@angular/router';
 import { IncidenciasService } from '../services/incidencias.service';
@@ -76,9 +78,9 @@ export interface DatoGrafica {
     IonRow,
     IonGrid,
     IonButtons,
-    IonInput,
     IonButton,
     IonModal,
+    IonBadge,
     IonSelect,
     IonSelectOption,
   ],
@@ -86,6 +88,7 @@ export interface DatoGrafica {
 export class Tab3Page implements OnInit {
   usuario: Usuario | null = null;
   paletteToggle = false;
+  modalDatosAbierto: boolean = false;
 
   // Filtros de reporte como en el mockup
   tipoReporte = 'estado'; // 'estado' | 'urgencia' | 'tipo'
@@ -128,7 +131,16 @@ export class Tab3Page implements OnInit {
       documentTextOutline,
       barChartOutline,
       checkmarkDoneOutline,
+      checkmarkCircleOutline,
+      fingerPrintOutline,
     });
+  }
+
+  abrirModalDatos(abrir: boolean): void {
+    this.modalDatosAbierto = abrir;
+    if (abrir) {
+      this.cargarDatos();
+    }
   }
 
   ngOnInit(): void {
@@ -359,6 +371,7 @@ export class Tab3Page implements OnInit {
     const isDark = event.detail.checked;
     this.paletteToggle = isDark;
     document.body.classList.toggle('dark', isDark);
+    document.documentElement.classList.toggle('ion-palette-dark', isDark);
     localStorage.setItem('darkMode', String(isDark));
   }
 

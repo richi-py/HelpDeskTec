@@ -1,12 +1,6 @@
 /*
  * App Global CSS
  * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
  */
 
 /* Core CSS required for Ionic components to work properly */
@@ -28,10 +22,127 @@
 /**
  * Ionic Dark Mode
  * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
  */
-
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
 @import "@ionic/angular/css/palettes/dark.class.css";
-/* @import '@ionic/angular/css/palettes/dark.system.css'; */
+
+:root {
+  --app-bg: #f1f5f9;
+  --app-surface: #ffffff;
+  --app-surface-subtle: #f8fafc;
+  --app-text-primary: #0f172a;
+  --app-text-secondary: #475569;
+  --app-text-muted: #94a3b8;
+  --app-border: #e2e8f0;
+  --app-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+body.dark {
+  --app-bg: #0f172a;
+  --app-surface: #1e293b;
+  --app-surface-subtle: #334155;
+  --app-text-primary: #f8fafc;
+  --app-text-secondary: #cbd5e1;
+  --app-text-muted: #94a3b8;
+  --app-border: #334155;
+  --app-card-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+
+  --ion-background-color: #0f172a;
+  --ion-background-color-rgb: 15, 23, 42;
+  --ion-text-color: #f8fafc;
+  --ion-text-color-rgb: 248, 250, 252;
+  --ion-item-background: #1e293b;
+  --ion-card-background: #1e293b;
+  --ion-border-color: #334155;
+
+  ion-content {
+    --background: var(--app-bg) !important;
+  }
+
+  ion-tab-bar {
+    --background: #0f172a !important;
+    --border: 1px solid #334155;
+  }
+
+  .tech-toolbar {
+    --background: #064e3b !important;
+    --color: #f8fafc !important;
+  }
+
+  ion-toolbar:not(.tech-toolbar) {
+    --background: #1e293b !important;
+    --color: #f8fafc !important;
+  }
+
+  ion-card {
+    --background: #1e293b !important;
+    --color: #f8fafc !important;
+    border: 1px solid #334155;
+  }
+
+  ion-item {
+    --background: #1e293b !important;
+    --color: #f8fafc !important;
+    --border-color: #334155;
+  }
+
+  ion-searchbar {
+    --background: #1e293b !important;
+    --color: #f8fafc !important;
+    --placeholder-color: #94a3b8 !important;
+    --icon-color: #94a3b8 !important;
+  }
+
+  ion-segment-button {
+    --background: #1e293b !important;
+    --color: #cbd5e1 !important;
+    --background-checked: #15803d !important;
+    --color-checked: #ffffff !important;
+  }
+
+  .user-card,
+  .report-filters-card,
+  .chart-section,
+  .tech-menu,
+  .card-info,
+  .card-fotos,
+  .card-solucion,
+  .detalle-card {
+    background: #1e293b !important;
+    border: 1px solid #334155 !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+  }
+
+  .tech-name,
+  .filter-label,
+  .chart-title,
+  .stat-number,
+  .user-info h2,
+  .header-summary h2,
+  .detalle-header h2 {
+    color: #f8fafc !important;
+  }
+
+  .tech-email,
+  .stat-label,
+  .bar-label,
+  .user-info p,
+  .header-summary p,
+  .fecha-reporte {
+    color: #cbd5e1 !important;
+  }
+
+  .select-wrapper,
+  .chart-card,
+  .stat-box {
+    background: #0f172a !important;
+    border: 1px solid #334155 !important;
+  }
+
+  .custom-select {
+    color: #f8fafc !important;
+  }
+
+  .bar-value {
+    color: #f8fafc !important;
+  }
+}
